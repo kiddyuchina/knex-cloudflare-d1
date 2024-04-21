@@ -30,7 +30,8 @@ export default {
       client: ClientD1,
       connection: {
         database: env.DB
-      }
+      },
+      useNullAsDefault: true,
     });
 
     // ...

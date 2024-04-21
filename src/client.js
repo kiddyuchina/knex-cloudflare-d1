@@ -3,11 +3,10 @@ const Client_Sqlite3 = require('knex/lib/dialects/sqlite3/index');
 class Client_D1 extends Client_Sqlite3 {
   constructor(config) {
     super({
-      client: config.client,
+      ...config,
       connection: {
         filename: 'db',
       },
-      ...config
     });
 
     if (!config?.connection?.database) {
