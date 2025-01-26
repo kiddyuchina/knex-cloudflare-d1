@@ -15,7 +15,6 @@ function executeQuery(connection, query, bindings = [], options = {}) {
 
   // If we have bindings, we need to properly escape and inject them into the query
   let finalQuery = query;
-  console.log('bindings:', bindings);
   if (bindings.length > 0) {
     bindings.forEach((binding) => {
       const value = (() => {
@@ -61,7 +60,6 @@ function executeQuery(connection, query, bindings = [], options = {}) {
   }
 
   if (result.status !== 0) {
-    console.log('result:', result);
     throw new Error(`Command failed with exit code ${result.status}: ${result.stderr}`);
   }
 
