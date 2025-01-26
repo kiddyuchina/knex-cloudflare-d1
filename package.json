@@ -27,6 +27,9 @@
   ],
   "author": "Kidd Yu",
   "readmeFilename": "README.md",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "sqlite3": "^5.1.7",
+    "toml": "^3.0.0"
+  }
 }
-  

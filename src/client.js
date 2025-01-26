@@ -2,30 +2,35 @@ const Client_Sqlite3 = require('knex/lib/dialects/sqlite3/index');
 
 class Client_D1 extends Client_Sqlite3 {
   constructor(config) {
+    let filename, wranglerContext = true;
+    if (!(config?.connection?.database) || !(config?.connection?.database instanceof Object)) {
+      wranglerContext = false;
+      filename = require('./local.js').filename(config?.connection?.wranglerPath, config?.connection?.database);
+    }
+
     super({
       ...config,
       connection: {
-        filename: 'db',
+        filename: filename ?? 'db',
       },
     });
 
-    if (!config?.connection?.database) {
+    if (!filename && !config?.connection?.database) {
       this.logger.warn(
         'Could not find `connection.database` in config.'
       );
     }
 
-    this.driverName = 'd1';
-    this.d1Driver = config.connection.database;
-    this.driver = config.connection.database
+    this._D1 = config.connection.database;
+    this.wranglerContext = wranglerContext;
   }
 
   _driver () {
-    return this.d1Driver;
+    return this.wranglerContext ? this._D1 : super._driver();
   }
 
   async acquireRawConnection() {
-    return this.d1Driver;
+    return this.wranglerContext ? this._D1 : super.acquireRawConnection();
   }
 
   // Used to explicitly close a connection, called internally by the pool when
@@ -38,6 +43,7 @@ class Client_D1 extends Client_Sqlite3 {
   // other necessary prep work.
   async _query(connection, obj) {
     if (!obj.sql) throw new Error('The query is empty');
+    if (!this.wranglerContext) return super._query(connection, obj);
 
     const { method } = obj;
     let callMethod;
@@ -67,6 +73,7 @@ class Client_D1 extends Client_Sqlite3 {
 
   _stream(connection, obj, stream) {
     if (!obj.sql) throw new Error('The query is empty');
+    if (!this.wranglerContext) return _stream(connection, obj, stream);
 
     const client = this;
     stream.on('error', (error) => {
@@ -88,5 +95,11 @@ class Client_D1 extends Client_Sqlite3 {
       });
   }
 };
+
+Object.assign(Client_D1.prototype, {
+  dialect: 'sqlite3',
+
+  driverName: 'knex-cloudflare-d1',
+});
 
 module.exports = Client_D1;
