@@ -12,12 +12,6 @@ npm i knex-cloudflare-d1
 pnpm add knex-cloudflare-d1
 ```
 
-> [!IMPORTANT]  
-> When you start a new Wrangler project, the D1 databases don't exist locally until you run a query against them. To create the local databases, run the following command:
-> ```bash
-> npx knex-cloudflare-d1 setup
-> ```
-
 ## Usage
 **wrangler.toml**
 ```toml
@@ -38,8 +32,8 @@ import ClientD1 from 'knex-cloudflare-d1';
 export default const knexConfig = {
   client: ClientD1,
   connection: {
-    database: "my_database_name", // From Wrangler Binding, Defaults to first D1 Database in Wrangler.
-    wranglerPath: ".", // Default as "."
+    database: "my_database_name", // From Wrangler Binding
+    local: true, // Toggles `--local` flag on `wrangler d1 exec` command (Default as false)
   },
   useNullAsDefault: true,
 };
