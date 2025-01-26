@@ -4,6 +4,9 @@
   "description": "Cloudflare D1 dialect for Knex.js",
   "homepage": "https://github.com/kiddyuchina/knex-cloudflare-d1",
   "main": "src/client",
+  "bin": {
+    "knex-cloudflare-d1": "bin/cli.js"
+  },
   "types": "./types/index.d.ts",
   "repository": {
     "type": "git",
