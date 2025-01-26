@@ -6,11 +6,17 @@ Cloudflare D1 dialect for Knex.js.
 
 ## Install
 
-```
+```bash
 npm i knex-cloudflare-d1
 // Or
 pnpm add knex-cloudflare-d1
 ```
+
+> [!IMPORTANT]  
+> When you start a new Wrangler project, the D1 databases don't exist locally until you run a query against them. To create the local databases, run the following command:
+> ```bash
+> npx knex-cloudflare-d1 setup
+> ```
 
 ## Usage
 **wrangler.toml**
