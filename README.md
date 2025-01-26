@@ -75,6 +75,10 @@ export default {
 
 Kidd Yu <https://github.com/kiddyuchina>
 
+## Contributors
+
+- Jeremy H <https://github.com/jjjrmy>
+
 ## License
 
 MIT
