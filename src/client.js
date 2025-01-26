@@ -33,6 +33,13 @@ class Client_D1 extends Client_Sqlite3 {
     return true;
   }
 
+  async _query(connection, obj) {
+    if (!obj.sql) throw new Error("The query is empty");
+    return this.workerContext
+      ? this._queryD1(connection, obj)
+      : this._queryWrangler(connection, obj);
+  }
+
   // Runs the query on the specified connection, providing the bindings and any
   // other necessary prep work.
   async _queryD1(connection, obj) {
@@ -77,13 +84,6 @@ class Client_D1 extends Client_Sqlite3 {
     obj.response = result[0].results;
     obj.context = this;
     return obj;
-  }
-
-  async _query(connection, obj) {
-    if (!obj.sql) throw new Error("The query is empty");
-    return this.workerContext
-      ? this._queryD1(connection, obj)
-      : this._queryWrangler(connection, obj);
   }
 
   _stream(connection, obj, stream) {
