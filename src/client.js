@@ -34,7 +34,7 @@ class Client_D1 extends Client_Sqlite3 {
   }
 
   async _query(connection, obj) {
-    if (!obj.sql) throw new Error("The query is empty");
+    if (!obj.sql) throw new Error('The query is empty');
     return this.workerContext
       ? this._queryD1(connection, obj)
       : this._queryWrangler(connection, obj);
