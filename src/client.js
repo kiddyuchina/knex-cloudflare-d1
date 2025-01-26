@@ -11,7 +11,9 @@ class Client_D1 extends Client_Sqlite3 {
     });
 
     if (!config?.connection?.database) {
-      this.logger.warn("Could not find `connection.database` in config.");
+      this.logger.warn(
+        'Could not find `connection.database` in config.'
+      );
     }
 
     this.workerContext = config?.connection?.database instanceof Object;
@@ -37,16 +39,16 @@ class Client_D1 extends Client_Sqlite3 {
     const { method } = obj;
     let callMethod;
     switch (method) {
-      case "insert":
-      case "update":
-        callMethod = obj.returning ? "all" : "run";
+      case 'insert':
+      case 'update':
+        callMethod = obj.returning ? 'all' : 'run';
         break;
-      case "counter":
-      case "del":
-        callMethod = "run";
+      case 'counter':
+      case 'del':
+        callMethod = 'run';
         break;
       default:
-        callMethod = "all";
+        callMethod = 'all';
     }
 
     if (!connection) {
