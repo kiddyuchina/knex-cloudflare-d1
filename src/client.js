@@ -20,11 +20,11 @@ class Client_D1 extends Client_Sqlite3 {
   }
 
   _driver() {
-    return this.config.connection.database;
+    return this.config.connection;
   }
 
   async acquireRawConnection() {
-    return Promise.resolve(this);
+    return this.config.connection;
   }
 
   // Used to explicitly close a connection, called internally by the pool when
@@ -62,7 +62,7 @@ class Client_D1 extends Client_Sqlite3 {
       new Error(`Error calling ${callMethod} on connection.`);
     }
 
-    const { results } = await connection.config.connection.database.prepare(obj.sql).bind(...obj.bindings)?.[callMethod]();
+    const { results } = await connection.database.prepare(obj.sql).bind(...obj.bindings)?.[callMethod]();
 
     obj.response = results;
     obj.context = this;

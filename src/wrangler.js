@@ -1,7 +1,7 @@
 const { spawnSync } = require('child_process');
 
 function executeQuery(connection, query, bindings = [], options = {}) {
-  const { database, local = false } = connection.config.connection;
+  const { database, local = false } = connection;
 
   const wranglerArgs = [
     'd1',
