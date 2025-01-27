@@ -62,7 +62,7 @@ class Client_D1 extends Client_Sqlite3 {
       new Error(`Error calling ${callMethod} on connection.`);
     }
 
-    const { results } = await connection.prepare(obj.sql).bind(...obj.bindings)?.[callMethod]();
+    const { results } = await connection.config.connection.database.prepare(obj.sql).bind(...obj.bindings)?.[callMethod]();
 
     obj.response = results;
     obj.context = this;
@@ -79,9 +79,9 @@ class Client_D1 extends Client_Sqlite3 {
       return Promise.resolve();
     }
 
-    const result = await executeQuery(connection, obj.sql, obj.bindings);
+    const [ { results } ] = await executeQuery(connection, obj.sql, obj.bindings);
 
-    obj.response = result[0].results;
+    obj.response = results;
     obj.context = this;
     return obj;
   }
