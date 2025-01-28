@@ -1,7 +1,7 @@
 const { spawnSync } = require('child_process');
 
 function executeQuery(connection, query, bindings = [], flags = []) {
-  const { database, local = false } = connection;
+  const { database, remote = false } = connection;
 
   const wranglerArgs = [
     'd1',
@@ -9,8 +9,8 @@ function executeQuery(connection, query, bindings = [], flags = []) {
     database,
   ];
 
-  if (local) {
-    wranglerArgs.push('--local');
+  if (remote) {
+    wranglerArgs.push('--remote');
   }
 
   // If we have bindings, we need to properly escape and inject them into the query
