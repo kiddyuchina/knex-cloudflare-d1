@@ -1,6 +1,6 @@
 const { spawnSync } = require('child_process');
 
-function executeQuery(connection, query, bindings = [], options = {}) {
+function executeQuery(connection, query, bindings = [], flags = {}) {
   const { database, local = false } = connection;
 
   const wranglerArgs = [
@@ -49,6 +49,10 @@ function executeQuery(connection, query, bindings = [], options = {}) {
   wranglerArgs.push(`--command="${finalQuery}"`);
 
   wranglerArgs.push('--json');
+
+  Object.entries(flags).forEach(([key, value]) => {
+    wranglerArgs.push(`--${key}="${value}"`);
+  });
 
   const result = spawnSync('wrangler', wranglerArgs, { 
     stdio: 'pipe',

@@ -79,7 +79,7 @@ class Client_D1 extends Client_Sqlite3 {
       return Promise.resolve();
     }
 
-    const [ { results } ] = await executeQuery(connection, obj.sql, obj.bindings);
+    const [ { results } ] = await executeQuery(connection, obj.sql, obj.bindings, this.config.connection?.flags);
 
     obj.response = results;
     obj.context = this;
