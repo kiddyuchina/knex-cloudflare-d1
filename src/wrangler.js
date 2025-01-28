@@ -61,12 +61,9 @@ function executeQuery(connection, query, bindings = [], flags = []) {
     encoding: 'utf-8'
   });
 
-  if (result.error) {
-    throw new Error(`Failed to execute wrangler command: ${result.error.message}`);
-  }
-
   if (result.status !== 0) {
-    throw new Error(`Command failed with exit code ${result.status}: ${result.stderr}`);
+    const output = JSON.parse(result.stdout);
+    throw new Error(output.error.text);
   }
 
   try {
