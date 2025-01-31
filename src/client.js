@@ -5,7 +5,8 @@ class Client_D1 extends Client_Sqlite3 {
     super({
       ...config,
       connection: {
-        filename: 'db',
+        ... config.connection,
+        filename: ":memory:",
       },
     });
 
@@ -15,17 +16,15 @@ class Client_D1 extends Client_Sqlite3 {
       );
     }
 
-    this.driverName = 'd1';
-    this.d1Driver = config.connection.database;
-    this.driver = config.connection.database
+    this.workerContext = config?.connection?.database instanceof Object;
   }
 
-  _driver () {
-    return this.d1Driver;
+  _driver() {
+    return this.config.connection;
   }
 
   async acquireRawConnection() {
-    return this.d1Driver;
+    return this.config.connection;
   }
 
   // Used to explicitly close a connection, called internally by the pool when
@@ -38,7 +37,12 @@ class Client_D1 extends Client_Sqlite3 {
   // other necessary prep work.
   async _query(connection, obj) {
     if (!obj.sql) throw new Error('The query is empty');
+    return this.workerContext
+      ? this._queryD1(connection, obj)
+      : this._queryWrangler(connection, obj);
+  }
 
+  async _queryD1(connection, obj) {
     const { method } = obj;
     let callMethod;
     switch (method) {
@@ -58,7 +62,24 @@ class Client_D1 extends Client_Sqlite3 {
       new Error(`Error calling ${callMethod} on connection.`);
     }
 
-    const { results } = await connection.prepare(obj.sql).bind(...obj.bindings)?.[callMethod]();
+    const { results } = await connection.database.prepare(obj.sql).bind(...obj.bindings)?.[callMethod]();
+
+    obj.response = results;
+    obj.context = this;
+    return obj;
+  }
+
+  async _queryWrangler(connection, obj) {
+    const { executeQuery } = require("./wrangler");
+
+    if (["BEGIN", "COMMIT", "ROLLBACK"].includes(obj.sql.replace(/;$/, ''))) {
+      console.warn(
+        "[WARN] D1 doesn't support transactions, see https://blog.cloudflare.com/whats-new-with-d1/"
+      );
+      return Promise.resolve();
+    }
+
+    const [ { results } ] = await executeQuery(connection, obj.sql, obj.bindings, this.config.connection?.flags);
 
     obj.response = results;
     obj.context = this;
@@ -67,6 +88,7 @@ class Client_D1 extends Client_Sqlite3 {
 
   _stream(connection, obj, stream) {
     if (!obj.sql) throw new Error('The query is empty');
+    if (!this.workerContext) return super._stream(connection, obj, stream);
 
     const client = this;
     stream.on('error', (error) => {
@@ -88,5 +110,10 @@ class Client_D1 extends Client_Sqlite3 {
       });
   }
 };
+
+Object.assign(Client_D1.prototype, {
+  dialect: 'sqlite3',
+  driverName: 'knex-cloudflare-d1',
+});
 
 module.exports = Client_D1;
