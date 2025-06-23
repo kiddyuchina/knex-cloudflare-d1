@@ -39,6 +39,13 @@ class Client_D1 extends Client_Sqlite3 {
   async _query(connection, obj) {
     if (!obj.sql) throw new Error('The query is empty');
 
+    if (obj.sql.startsWith('BEGIN') || obj.sql.startsWith('COMMIT') || obj.sql.startsWith('ROLLBACK')) {
+      this.logger.warn(
+        "[WARN] D1 doesn't support transactions, see https://blog.cloudflare.com/whats-new-with-d1/"
+      )
+      return;
+    }
+
     const { method } = obj;
     let callMethod;
     switch (method) {
@@ -58,7 +65,12 @@ class Client_D1 extends Client_Sqlite3 {
       new Error(`Error calling ${callMethod} on connection.`);
     }
 
-    const { results } = await connection.prepare(obj.sql).bind(...obj.bindings)?.[callMethod]();
+    const stmt = connection.prepare(obj.sql);
+    if (obj.bindings && obj.bindings.length > 0) {
+      stmt.bind(...obj.bindings);
+    }
+
+    const { results } = await stmt?.[callMethod]();
 
     obj.response = results;
     obj.context = this;
